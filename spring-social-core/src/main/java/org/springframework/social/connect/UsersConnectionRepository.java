@@ -21,9 +21,9 @@ import java.util.Set;
 /**
  * A data access interface for managing a global store of users connections to service providers.
  * Provides data access operations that apply across multiple user records.
- * Also acts as a factory for a user-specific {@link ConnectionRepository}.
+ * Also acts as a factory for a user-specific {@link UserScopedConnectionRepository}.
  * @author Keith Donald
- * @see ConnectionRepository
+ * @see UserScopedConnectionRepository
  */
 public interface UsersConnectionRepository {
 
@@ -47,12 +47,12 @@ public interface UsersConnectionRepository {
 	Set<String> findUserIdsConnectedTo(String providerId, Set<String> providerUserIds);
 	
 	/**
-	 * Create a single-user {@link ConnectionRepository} instance for the user assigned the given id.
+	 * Create a single-user {@link UserScopedConnectionRepository} instance for the user assigned the given id.
 	 * All operations on the returned repository instance are relative to the user.
 	 * @param userId the id of the local user account.
-	 * @return the ConnectionRepository, exposing a number of operations for accessing and updating the given user's provider connections.
+	 * @return the UserScopedConnectionRepository, exposing a number of operations for accessing and updating the given user's provider connections.
 	 */
-	ConnectionRepository createConnectionRepository(String userId);
+	UserScopedConnectionRepository createConnectionRepository(String userId);
 	
 	/**
 	 * The command to execute to create a new local user profile in the event no user id could be mapped to a connection.

@@ -41,7 +41,7 @@ public interface ConnectionFactoryLocator {
 	 * @param apiType the Java type of the API binding used to lookup a matching ConnectionFactory
 	 * @param <A> the API binding type
      * @return the requested ConnectionFactory
-	 * @see ConnectionRepository#getPrimaryConnection(Class)
+	 * @see UserScopedConnectionRepository#getPrimaryConnection(Class)
 	 */
 	<A> ConnectionFactory<A> getConnectionFactory(Class<A> apiType);
 

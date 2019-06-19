@@ -26,7 +26,7 @@ import java.util.Set;
 
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.NoSuchConnectionException;
 import org.springframework.social.connect.UsersConnectionRepository;
@@ -41,13 +41,13 @@ public class InMemoryUsersConnectionRepository implements UsersConnectionReposit
 
 	private ConnectionFactoryLocator connectionFactoryLocator;
 	
-	private Map<String, ConnectionRepository> connectionRepositories;
+	private Map<String, UserScopedConnectionRepository> connectionRepositories;
 
 	private ConnectionSignUp connectionSignUp;
 
 	public InMemoryUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
 		this.connectionFactoryLocator = connectionFactoryLocator;
-		this.connectionRepositories= new HashMap<String, ConnectionRepository>(); 
+		this.connectionRepositories= new HashMap<String, UserScopedConnectionRepository>();
 	}
 	
 	@Override
@@ -57,8 +57,8 @@ public class InMemoryUsersConnectionRepository implements UsersConnectionReposit
 	
 	public List<String> findUserIdsWithConnection(Connection<?> connection) {
 		List<String> localUserIds = new ArrayList<String>();
-		Set<Entry<String, ConnectionRepository>> connectionRepositoryEntries = connectionRepositories.entrySet();
-		for (Entry<String, ConnectionRepository> connectionRepositoryEntry : connectionRepositoryEntries) {
+		Set<Entry<String, UserScopedConnectionRepository>> connectionRepositoryEntries = connectionRepositories.entrySet();
+		for (Entry<String, UserScopedConnectionRepository> connectionRepositoryEntry : connectionRepositoryEntries) {
 			try {
 				connectionRepositoryEntry.getValue().getConnection(connection.getKey());
 				localUserIds.add(connectionRepositoryEntry.getKey());
@@ -77,8 +77,8 @@ public class InMemoryUsersConnectionRepository implements UsersConnectionReposit
 
 	public Set<String> findUserIdsConnectedTo(String providerId, Set<String> providerUserIds) {
 		List<String> localUserIds = new ArrayList<String>();
-		Set<Entry<String, ConnectionRepository>> connectionRepositoryEntries = connectionRepositories.entrySet();
-		for (Entry<String, ConnectionRepository> connectionRepositoryEntry : connectionRepositoryEntries) {
+		Set<Entry<String, UserScopedConnectionRepository>> connectionRepositoryEntries = connectionRepositories.entrySet();
+		for (Entry<String, UserScopedConnectionRepository> connectionRepositoryEntry : connectionRepositoryEntries) {
 			String localUserId = connectionRepositoryEntry.getKey();
 			List<Connection<?>> providerConnections = connectionRepositoryEntry.getValue().findConnections(providerId);
 			for (Connection<?> connection : providerConnections) {
@@ -90,9 +90,9 @@ public class InMemoryUsersConnectionRepository implements UsersConnectionReposit
 		return new HashSet<String>(localUserIds);
 	}
 
-	public ConnectionRepository createConnectionRepository(String userId) {
+	public UserScopedConnectionRepository createConnectionRepository(String userId) {
 		if (!connectionRepositories.containsKey(userId)) {
-			connectionRepositories.put(userId, new InMemoryConnectionRepository(connectionFactoryLocator));
+			connectionRepositories.put(userId, new InMemoryUserScopedConnectionRepository(connectionFactoryLocator));
 		}
 		return connectionRepositories.get(userId);
 	}

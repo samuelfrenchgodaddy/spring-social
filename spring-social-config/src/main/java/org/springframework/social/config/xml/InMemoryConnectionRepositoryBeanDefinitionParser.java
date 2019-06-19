@@ -19,12 +19,12 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.social.config.support.InMemoryConnectionRepositoryConfigSupport;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.w3c.dom.Element;
 
 /**
- * {@link BeanDefinitionParser} for creating {@link UsersConnectionRepository} (specifically, {@link InMemeoryUsersConnectionRepository}) and {@link ConnectionRepository} beans that persist connections in-memory.
+ * {@link BeanDefinitionParser} for creating {@link UsersConnectionRepository} (specifically, {@link InMemeoryUsersConnectionRepository}) and {@link UserScopedConnectionRepository} beans that persist connections in-memory.
  * @author Craig Walls
  */
 class InMemoryConnectionRepositoryBeanDefinitionParser extends InMemoryConnectionRepositoryConfigSupport implements BeanDefinitionParser {

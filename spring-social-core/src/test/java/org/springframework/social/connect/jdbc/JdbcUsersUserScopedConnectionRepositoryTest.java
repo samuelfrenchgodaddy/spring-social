@@ -34,10 +34,10 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.social.connect.ConnectionData;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 
-public class JdbcUsersConnectionRepositoryTest extends AbstractUsersConnectionRepositoryTest {
+public class JdbcUsersUserScopedConnectionRepositoryTest extends AbstractUsersUserScopedConnectionRepositoryTest {
 
 	protected static class MySqlCompatibleH2DatabaseConfigurer implements EmbeddedDatabaseConfigurer {
 		@Override
@@ -68,7 +68,7 @@ public class JdbcUsersConnectionRepositoryTest extends AbstractUsersConnectionRe
 
 	JdbcUsersConnectionRepository usersConnectionRepository;
 
-	ConnectionRepository connectionRepository;
+	UserScopedConnectionRepository userScopedConnectionRepository;
 
 
 	@Override
@@ -77,8 +77,8 @@ public class JdbcUsersConnectionRepositoryTest extends AbstractUsersConnectionRe
 	}
 
 	@Override
-	protected ConnectionRepository getConnectionRepository() {
-		return connectionRepository;
+	protected UserScopedConnectionRepository getUserScopedConnectionRepository() {
+		return userScopedConnectionRepository;
 	}
 
 	@Before
@@ -98,7 +98,7 @@ public class JdbcUsersConnectionRepositoryTest extends AbstractUsersConnectionRe
 		if (!getTablePrefix().equals("")) {
 			usersConnectionRepository.setTablePrefix(getTablePrefix());
 		}
-		connectionRepository = usersConnectionRepository.createConnectionRepository(getUserId1());
+		userScopedConnectionRepository = usersConnectionRepository.createConnectionRepository(getUserId1());
 	}
 	
 	@After
@@ -156,6 +156,6 @@ public class JdbcUsersConnectionRepositoryTest extends AbstractUsersConnectionRe
 	@Test(expected = IllegalArgumentException.class)
 	public void noSuchConnectionFactory() {
 		insertFooConnection();
-		getConnectionRepository().findAllConnections();	
+		getUserScopedConnectionRepository().findAllConnections();
 	}
 }

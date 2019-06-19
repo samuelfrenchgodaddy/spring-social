@@ -20,25 +20,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.DuplicateConnectionException;
-import org.springframework.social.connect.NoSuchConnectionException;
-import org.springframework.social.connect.NotConnectedException;
+import org.springframework.social.connect.*;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-public class InMemoryConnectionRepository implements ConnectionRepository {
+public class InMemoryUserScopedConnectionRepository implements UserScopedConnectionRepository {
 
 	// <providerId, Connection<provider API>>
 	private MultiValueMap<String, Connection<?>> connections;
 		
 	private ConnectionFactoryLocator connectionFactoryLocator;
 
-	public InMemoryConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
+	public InMemoryUserScopedConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
 		this.connectionFactoryLocator = connectionFactoryLocator;
 		this.connections = new LinkedMultiValueMap<String, Connection<?>>();
 	}

@@ -16,9 +16,9 @@
 package org.springframework.social.connect;
 
 /**
- * Thrown by a {@link ConnectionRepository} when attempting to add a {@link Connection} and a connection already exists with the given key.
+ * Thrown by a {@link UserScopedConnectionRepository} when attempting to add a {@link Connection} and a connection already exists with the given key.
  * @author Keith Donald
- * @see ConnectionRepository#addConnection(Connection)
+ * @see UserScopedConnectionRepository#addConnection(Connection)
  */
 @SuppressWarnings("serial")
 public final class DuplicateConnectionException extends ConnectionRepositoryException {

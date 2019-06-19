@@ -33,7 +33,7 @@ import org.springframework.social.NotAuthorizedException;
 import org.springframework.social.OperationNotPermittedException;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -65,7 +65,7 @@ public class ReconnectFilter extends GenericFilterBean {
 
 	/**
 	 * Creates an instance of {@link ReconnectFilter}.
-	 * @param usersConnectionRepository a {@link UsersConnectionRepository} used to create a {@link ConnectionRepository} for the current user.
+	 * @param usersConnectionRepository a {@link UsersConnectionRepository} used to create a {@link UserScopedConnectionRepository} for the current user.
 	 * @param userIdSource an instance of {@link UserIdSource} to obtain the current user's ID used to create a {@link ConnectionFactory}.
 	 */
 	public ReconnectFilter(UsersConnectionRepository usersConnectionRepository, UserIdSource userIdSource) {

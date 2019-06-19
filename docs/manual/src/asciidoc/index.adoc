@@ -1140,8 +1140,8 @@ public class SocialConfig {
     @Bean
     public ConnectController connectController(
                 ConnectionFactoryLocator connectionFactoryLocator, 
-                ConnectionRepository connectionRepository) {
-        return new ConnectController(connectionFactoryLocator, connectionRepository);
+                ConnectionRepository userScopedConnectionRepository) {
+        return new ConnectController(connectionFactoryLocator, userScopedConnectionRepository);
     }
     
 }
@@ -1187,7 +1187,7 @@ public class SocialConfig {
     @Bean
     public ConnectController connectController() {
         ConnectController controller = new ConnectController(
-            connectionFactoryLocator(), connectionRepository());
+            connectionFactoryLocator(), userScopedConnectionRepository());
         controller.setApplicationUrl(environment.getProperty("application.url");
         return controller;
     }
@@ -1444,7 +1444,7 @@ created:
 @Bean
 public ConnectController connectController() {
     ConnectController controller = new ConnectController(connectionFactoryLocator(),
-        connectionRepository());
+        userScopedConnectionRepository());
     controller.addInterceptor(new TweetAfterConnectInterceptor());
     return controller;
 }

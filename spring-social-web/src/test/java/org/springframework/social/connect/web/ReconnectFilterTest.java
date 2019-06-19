@@ -28,7 +28,7 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.social.UserIdSource;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 
 public class ReconnectFilterTest {
@@ -47,7 +47,7 @@ public class ReconnectFilterTest {
 			}
 		};
 
-		ConnectionRepository connRepo = mock(ConnectionRepository.class);
+		UserScopedConnectionRepository connRepo = mock(UserScopedConnectionRepository.class);
 		when(uconnRepo.createConnectionRepository("habuma")).thenReturn(connRepo);
 		ReconnectFilter filter = new ReconnectFilter(uconnRepo, userIdSource);
 		MockHttpServletRequest request = new MockHttpServletRequest();

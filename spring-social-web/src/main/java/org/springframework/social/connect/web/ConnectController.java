@@ -28,19 +28,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.GenericTypeResolver;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.DuplicateConnectionException;
+import org.springframework.social.connect.*;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.support.OAuth1ConnectionFactory;
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,7 +46,6 @@ import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.UrlPathHelper;
-import org.springframework.web.util.WebUtils;
 
 /**
  * Generic UI controller for managing the account-to-service-provider connection flow.
@@ -73,7 +67,7 @@ public class ConnectController implements InitializingBean {
 	
 	private final ConnectionFactoryLocator connectionFactoryLocator;
 	
-	private final ConnectionRepository connectionRepository;
+	private final UserScopedConnectionRepository userScopedConnectionRepository;
 
 	private final MultiValueMap<Class<?>, ConnectInterceptor<?>> connectInterceptors = new LinkedMultiValueMap<Class<?>, ConnectInterceptor<?>>();
 
@@ -94,12 +88,12 @@ public class ConnectController implements InitializingBean {
 	/**
 	 * Constructs a ConnectController.
 	 * @param connectionFactoryLocator the locator for {@link ConnectionFactory} instances needed to establish connections
-	 * @param connectionRepository the current user's {@link ConnectionRepository} needed to persist connections; must be a proxy to a request-scoped bean
+	 * @param userScopedConnectionRepository the current user's {@link UserScopedConnectionRepository} needed to persist connections; must be a proxy to a request-scoped bean
 	 */
 	@Inject
-	public ConnectController(ConnectionFactoryLocator connectionFactoryLocator, ConnectionRepository connectionRepository) {
+	public ConnectController(ConnectionFactoryLocator connectionFactoryLocator, UserScopedConnectionRepository userScopedConnectionRepository) {
 		this.connectionFactoryLocator = connectionFactoryLocator;
-		this.connectionRepository = connectionRepository;
+		this.userScopedConnectionRepository = userScopedConnectionRepository;
 	}
 
 	/**
@@ -206,7 +200,7 @@ public class ConnectController implements InitializingBean {
 	public String connectionStatus(NativeWebRequest request, Model model) {
 		setNoCache(request);
 		processFlash(request, model);
-		Map<String, List<Connection<?>>> connections = connectionRepository.findAllConnections();
+		Map<String, List<Connection<?>>> connections = userScopedConnectionRepository.findAllConnections();
 		model.addAttribute("providerIds", connectionFactoryLocator.registeredProviderIds());		
 		model.addAttribute("connectionMap", connections);
 		return connectView();
@@ -223,7 +217,7 @@ public class ConnectController implements InitializingBean {
 	public String connectionStatus(@PathVariable String providerId, NativeWebRequest request, Model model) {
 		setNoCache(request);
 		processFlash(request, model);
-		List<Connection<?>> connections = connectionRepository.findConnections(providerId);
+		List<Connection<?>> connections = userScopedConnectionRepository.findConnections(providerId);
 		setNoCache(request);
 		if (connections.isEmpty()) {
 			return connectView(providerId); 
@@ -333,7 +327,7 @@ public class ConnectController implements InitializingBean {
 	public RedirectView removeConnections(@PathVariable String providerId, NativeWebRequest request) {
 		ConnectionFactory<?> connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);
 		preDisconnect(connectionFactory, request);
-		connectionRepository.removeConnections(providerId);
+		userScopedConnectionRepository.removeConnections(providerId);
 		postDisconnect(connectionFactory, request);
 		return connectionStatusRedirect(providerId, request);
 	}
@@ -351,7 +345,7 @@ public class ConnectController implements InitializingBean {
 	public RedirectView removeConnection(@PathVariable String providerId, @PathVariable String providerUserId, NativeWebRequest request) {
 		ConnectionFactory<?> connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);
 		preDisconnect(connectionFactory, request);
-		connectionRepository.removeConnection(new ConnectionKey(providerId, providerUserId));
+		userScopedConnectionRepository.removeConnection(new ConnectionKey(providerId, providerUserId));
 		postDisconnect(connectionFactory, request);
 		return connectionStatusRedirect(providerId, request);
 	}
@@ -436,7 +430,7 @@ public class ConnectController implements InitializingBean {
 	
 	private void addConnection(Connection<?> connection, ConnectionFactory<?> connectionFactory, WebRequest request) {
 		try {
-			connectionRepository.addConnection(connection);
+			userScopedConnectionRepository.addConnection(connection);
 			postConnect(connectionFactory, connection, request);
 		} catch (DuplicateConnectionException e) {
 			sessionStrategy.setAttribute(request, DUPLICATE_CONNECTION_ATTRIBUTE, e);

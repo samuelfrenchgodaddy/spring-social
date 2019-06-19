@@ -35,16 +35,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.DuplicateConnectionException;
 import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
 import org.springframework.social.connect.support.ConnectionFactoryRegistry;
-import org.springframework.social.connect.web.test.StubConnectionRepository;
-import org.springframework.social.connect.web.test.StubOAuth1ConnectionFactory;
-import org.springframework.social.connect.web.test.StubOAuth2ConnectionFactory;
-import org.springframework.social.connect.web.test.StubOAuthTemplateBehavior;
-import org.springframework.social.connect.web.test.TestApi1;
-import org.springframework.social.connect.web.test.TestApi2;
+import org.springframework.social.connect.web.test.*;
+import org.springframework.social.connect.web.test.StubUserScopedConnectionRepository;
 import org.springframework.social.oauth1.OAuthToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.MultiValueMap;
@@ -69,8 +65,8 @@ public class ConnectControllerTest {
 	@Test
 	public void createConnectController_setApplicationUrl() throws Exception {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
-		ConnectionRepository connectionRepository = new InMemoryUsersConnectionRepository(connectionFactoryLocator).createConnectionRepository("userid");
-		ConnectController controller = new ConnectController(connectionFactoryLocator, connectionRepository);
+		UserScopedConnectionRepository userScopedConnectionRepository = new InMemoryUsersConnectionRepository(connectionFactoryLocator).createConnectionRepository("userid");
+		ConnectController controller = new ConnectController(connectionFactoryLocator, userScopedConnectionRepository);
 		controller.setApplicationUrl("https://baseurl.com/?folio=9PO6Z3MVF&_glst=0&rfolio=9POV2OOG7");
 	}
 
@@ -81,7 +77,7 @@ public class ConnectControllerTest {
 		connectionFactoryLocator.addConnectionFactory(connectionFactory1);
 		ConnectionFactory<TestApi2> connectionFactory2 = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory2);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		connectionRepository.addConnection(connectionFactory1.createConnection(new ConnectionData("oauth1Provider", "provider1User1", null, null, null, null, null, null, null)));
 		MockMvc mockMvc = standaloneSetup(new ConnectController(connectionFactoryLocator, connectionRepository)).build();
 
@@ -106,7 +102,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory2 = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory2);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		MockMvc mockMvc = standaloneSetup(new ConnectController(connectionFactoryLocator, connectionRepository)).build();
 
 		// Should convert errors in "flash" scope to model attributes and remove them from "flash"
@@ -126,7 +122,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		connectionRepository.addConnection(connectionFactory.createConnection(new ConnectionData("provider1", "provider1User1", null, null, null, null, null, null, null)));
 		connectionRepository.addConnection(connectionFactory.createConnection(new ConnectionData("provider1", "provider1User2", null, null, null, null, null, null, null)));
 		connectionRepository.addConnection(connectionFactory.createConnection(new ConnectionData("oauth2Provider", "provider2User1", null, null, null, null, null, null, null)));
@@ -154,7 +150,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		connectionRepository.addConnection(connectionFactory.createConnection(new ConnectionData("oauth2Provider", "provider1User1", null, null, null, null, null, null, null)));
 		connectionRepository.addConnection(connectionFactory.createConnection(new ConnectionData("oauth2Provider", "provider1User2", null, null, null, null, null, null, null)));
 		assertEquals(2, connectionRepository.findConnections("oauth2Provider").size());
@@ -211,7 +207,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi1> connectionFactory = new StubOAuth1ConnectionFactory("clientId", "clientSecret");
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		ConnectController connectController = new ConnectController(connectionFactoryLocator, connectionRepository);
 		List<ConnectInterceptor<?>> interceptors = getConnectInterceptor();
 		connectController.setConnectInterceptors(interceptors);
@@ -237,7 +233,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi1> connectionFactory = new StubOAuth1ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		MockMvc mockMvc = standaloneSetup(new ConnectController(connectionFactoryLocator, connectionRepository)).build();
 		assertEquals(0, connectionRepository.findConnections("oauth2Provider").size());
 		mockMvc.perform(get("/connect/oauth1Provider")
@@ -289,7 +285,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory = new StubOAuth2ConnectionFactory("clientId", "clientSecret");
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		ConnectController connectController = new ConnectController(connectionFactoryLocator, connectionRepository);
 		List<ConnectInterceptor<?>> interceptors = getConnectInterceptor();
 		connectController.setConnectInterceptors(interceptors);
@@ -313,7 +309,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		MockMvc mockMvc = standaloneSetup(new ConnectController(connectionFactoryLocator, connectionRepository)).build();
 		assertEquals(0, connectionRepository.findConnections("oauth2Provider").size());
 		mockMvc.perform(get("/connect/oauth2Provider").param("code", "oauth2Code"))
@@ -327,7 +323,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		MockMvc mockMvc = standaloneSetup(new ConnectController(connectionFactoryLocator, connectionRepository)).build();
 		assertEquals(0, connectionRepository.findConnections("oauth2Provider").size());
 		HashMap<String, String> expectedError = new HashMap<String, String>();
@@ -347,7 +343,7 @@ public class ConnectControllerTest {
 		ConnectionFactoryRegistry connectionFactoryLocator = new ConnectionFactoryRegistry();
 		ConnectionFactory<TestApi2> connectionFactory = new StubOAuth2ConnectionFactory("clientId", "clientSecret", THROW_EXCEPTION);
 		connectionFactoryLocator.addConnectionFactory(connectionFactory);
-		StubConnectionRepository connectionRepository = new StubConnectionRepository();
+		StubUserScopedConnectionRepository connectionRepository = new StubUserScopedConnectionRepository();
 		MockMvc mockMvc = standaloneSetup(new ConnectController(connectionFactoryLocator, connectionRepository)).build();
 		assertEquals(0, connectionRepository.findConnections("oauth2Provider").size());
 		HashMap<String, String> expectedError = new HashMap<String, String>();

@@ -16,11 +16,9 @@
 package org.springframework.social.connect.web.thymeleaf;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.social.connect.ConnectionRepository;
-import org.thymeleaf.context.IContext;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.engine.AttributeName;
-import org.thymeleaf.exceptions.ConfigurationException;
 import org.thymeleaf.model.IProcessableElementTag;
 import org.thymeleaf.processor.IProcessor;
 import org.thymeleaf.spring5.context.SpringContextUtils;
@@ -44,14 +42,14 @@ class ConnectedAttrProcessor extends AbstractStandardConditionalVisibilityTagPro
 		if (providerId == null || providerId.trim().equals("")) {
 			return false;
 		}
-		ConnectionRepository connectionRepository = getConnectionRepository(context);
-		return connectionRepository.findConnections(providerId).size() > 0;
+		UserScopedConnectionRepository userScopedConnectionRepository = getConnectionRepository(context);
+		return userScopedConnectionRepository.findConnections(providerId).size() > 0;
 	}
 
-	private ConnectionRepository getConnectionRepository(final ITemplateContext templateContext) {
+	private UserScopedConnectionRepository getConnectionRepository(final ITemplateContext templateContext) {
 		ApplicationContext applicationContext = SpringContextUtils.getApplicationContext(templateContext);
-		ConnectionRepository connectionRepository = applicationContext.getBean(ConnectionRepository.class);
-		return connectionRepository;
+		UserScopedConnectionRepository userScopedConnectionRepository = applicationContext.getBean(UserScopedConnectionRepository.class);
+		return userScopedConnectionRepository;
 	}
 
 }

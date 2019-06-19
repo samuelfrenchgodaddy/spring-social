@@ -19,13 +19,13 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.social.config.support.JdbcConnectionRepositoryConfigSupport;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.w3c.dom.Element;
 
 /**
- * {@link BeanDefinitionParser} for creating {@link UsersConnectionRepository} (specifically, {@link JdbcUsersConnectionRepository}) and {@link ConnectionRepository} beans that use JDBC as the persistence mechanism.
+ * {@link BeanDefinitionParser} for creating {@link UsersConnectionRepository} (specifically, {@link JdbcUsersConnectionRepository}) and {@link UserScopedConnectionRepository} beans that use JDBC as the persistence mechanism.
  * @author Craig Walls
  */
 class JdbcConnectionRepositoryBeanDefinitionParser extends JdbcConnectionRepositoryConfigSupport implements BeanDefinitionParser {

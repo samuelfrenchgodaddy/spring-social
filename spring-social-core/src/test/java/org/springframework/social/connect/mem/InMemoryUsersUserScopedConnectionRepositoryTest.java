@@ -18,27 +18,27 @@ package org.springframework.social.connect.mem;
 import org.junit.Before;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.connect.jdbc.AbstractUsersConnectionRepositoryTest;
+import org.springframework.social.connect.jdbc.AbstractUsersUserScopedConnectionRepositoryTest;
 
-public class InMemoryUsersConnectionRepositoryTest extends AbstractUsersConnectionRepositoryTest {
+public class InMemoryUsersUserScopedConnectionRepositoryTest extends AbstractUsersUserScopedConnectionRepositoryTest {
 
-	private ConnectionRepository connectionRepository;
+	private UserScopedConnectionRepository userScopedConnectionRepository;
 
 	private InMemoryUsersConnectionRepository usersConnectionRepository;
 
 	@Before
 	public void setUp() {
 		usersConnectionRepository = new InMemoryUsersConnectionRepository(getConnectionFactoryRegistry());
-		connectionRepository = usersConnectionRepository.createConnectionRepository(getUserId1());
+		userScopedConnectionRepository = usersConnectionRepository.createConnectionRepository(getUserId1());
 	}
 	
 
 	
 	@Override
-	protected ConnectionRepository getConnectionRepository() {
-		return connectionRepository;
+	protected UserScopedConnectionRepository getUserScopedConnectionRepository() {
+		return userScopedConnectionRepository;
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class InMemoryUsersConnectionRepositoryTest extends AbstractUsersConnecti
 	@Override
 	protected void insertTwitterConnection() {
 		Connection<TestTwitterApi> twitterConnection = getTwitterConnectionFactory().createConnection(TWITTER_DATA);
-		connectionRepository.addConnection(twitterConnection);
+		userScopedConnectionRepository.addConnection(twitterConnection);
 	}
 
 	@Override

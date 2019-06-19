@@ -23,7 +23,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
 
 /**
- * Support class providing methods for configuring a singleton {@link InMemoryUsersConnectionRepository} bean and a request-scoped InMemoryConnectionRepository bean.
+ * Support class providing methods for configuring a singleton {@link InMemoryUsersConnectionRepository} bean and a request-scoped InMemoryUserScopedConnectionRepository bean.
  * Used by InMemoryConnectionRepositoryBeanDefinitionParser for XML configuration.
  * @author Craig Walls
  */

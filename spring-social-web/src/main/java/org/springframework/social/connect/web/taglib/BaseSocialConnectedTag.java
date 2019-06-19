@@ -15,7 +15,7 @@
  */
 package org.springframework.social.connect.web.taglib;
 
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.tags.RequestContextAwareTag;
 
@@ -39,9 +39,9 @@ public abstract class BaseSocialConnectedTag extends RequestContextAwareTag {
 		return evaluateIfConnected ? SKIP_BODY : EVAL_BODY_INCLUDE;
 	}
 
-	private ConnectionRepository getConnectionRepository() {
+	private UserScopedConnectionRepository getConnectionRepository() {
 		WebApplicationContext applicationContext = getRequestContext().getWebApplicationContext();
-		return applicationContext.getBean(ConnectionRepository.class);
+		return applicationContext.getBean(UserScopedConnectionRepository.class);
 	}
 
 	public void setProvider(String provider) {

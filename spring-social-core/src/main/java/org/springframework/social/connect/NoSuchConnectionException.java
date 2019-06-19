@@ -16,9 +16,9 @@
 package org.springframework.social.connect;
 
 /**
- * Thrown by a {@link ConnectionRepository} when attempting to fetch a {@link Connection} and no such connection exists with the provided key.
+ * Thrown by a {@link UserScopedConnectionRepository} when attempting to fetch a {@link Connection} and no such connection exists with the provided key.
  * @author Keith Donald
- * @see ConnectionRepository#getConnection(ConnectionKey)
+ * @see UserScopedConnectionRepository#getConnection(ConnectionKey)
  */
 @SuppressWarnings("serial")
 public final class NoSuchConnectionException extends ConnectionRepositoryException {

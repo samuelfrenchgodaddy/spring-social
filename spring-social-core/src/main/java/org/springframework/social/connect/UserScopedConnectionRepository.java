@@ -26,7 +26,7 @@ import org.springframework.util.MultiValueMap;
  * @author Keith Donald
  * @see UsersConnectionRepository
  */
-public interface ConnectionRepository {
+public interface UserScopedConnectionRepository {
 
 	/**
 	 * Find all connections the current user has across all providers.

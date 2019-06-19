@@ -17,7 +17,7 @@ import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
 import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.ConnectionValues;
 import org.springframework.social.connect.DuplicateConnectionException;
@@ -39,7 +39,7 @@ import org.springframework.social.oauth2.OAuth2ServiceProvider;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-public abstract class AbstractUsersConnectionRepositoryTest {
+public abstract class AbstractUsersUserScopedConnectionRepositoryTest {
 
 	protected static final String TWITTER_CONNECTION_1_PROVIDER_USER_ID = "8";
 	protected static final String FACEBOOK_CONNECTION_1_PROVIDER_USER_ID = "9";
@@ -77,7 +77,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	protected abstract String getUserId2();
 	
 	protected abstract UsersConnectionRepository getUsersConnectionRepository();
-	protected abstract ConnectionRepository getConnectionRepository();
+	protected abstract UserScopedConnectionRepository getUserScopedConnectionRepository();
 	
 	protected TestFacebookConnectionFactory getFacebookConnectionFactory() {
 		return facebookConnectionFactory;
@@ -103,7 +103,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	@Test
 	public void findUserIdWithConnection() {
 		insertFacebookConnection1();
-		List<String> userIds = getUsersConnectionRepository().findUserIdsWithConnection(getConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
+		List<String> userIds = getUsersConnectionRepository().findUserIdsWithConnection(getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
 		assertEquals(getUserId1(), userIds.get(0));
 	}
 
@@ -117,7 +117,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	public void findUserIdWithConnectionMultipleConnectionsToSameProviderUser() {
 		insertFacebookConnection1();
 		insertFacebookConnectionSameFacebookUser();
-		List<String> localUserIds = getUsersConnectionRepository().findUserIdsWithConnection(getConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
+		List<String> localUserIds = getUsersConnectionRepository().findUserIdsWithConnection(getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
 		assertEquals(2, localUserIds.size());
 		assertThat(localUserIds, hasItems(getUserId1(), getUserId2()));
 	}
@@ -164,7 +164,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	public void findAllConnections() {
 		insertTwitterConnection();
 		insertFacebookConnection1();
-		MultiValueMap<String, Connection<?>> connections = getConnectionRepository().findAllConnections();
+		MultiValueMap<String, Connection<?>> connections = getUserScopedConnectionRepository().findAllConnections();
 		assertEquals(2, connections.size());
 		Connection<TestFacebookApi> facebook = (Connection<TestFacebookApi>) connections.getFirst("facebook");
 		assertFacebookConnection(facebook);
@@ -177,7 +177,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 		insertTwitterConnection();
 		insertFacebookConnection1();
 		insertFacebookConnection2();
-		MultiValueMap<String, Connection<?>> connections = getConnectionRepository().findAllConnections();
+		MultiValueMap<String, Connection<?>> connections = getUserScopedConnectionRepository().findAllConnections();
 		assertEquals(2, connections.size());
 		assertEquals(2, connections.get("facebook").size());
 		assertEquals(1, connections.get("twitter").size());
@@ -185,7 +185,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 
 	@Test
 	public void findAllConnectionsEmptyResult() {
-		MultiValueMap<String, Connection<?>> connections = getConnectionRepository().findAllConnections();
+		MultiValueMap<String, Connection<?>> connections = getUserScopedConnectionRepository().findAllConnections();
 		assertEquals(2, connections.size());
 		assertEquals(0, connections.get("facebook").size());
 		assertEquals(0, connections.get("twitter").size());		
@@ -195,28 +195,28 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	@SuppressWarnings("unchecked")
 	public void findConnectionsByProviderId() {
 		insertTwitterConnection();
-		List<Connection<?>> connections = getConnectionRepository().findConnections("twitter");
+		List<Connection<?>> connections = getUserScopedConnectionRepository().findConnections("twitter");
 		assertEquals(1, connections.size());
 		assertTwitterConnection((Connection<TestTwitterApi>) connections.get(0));
 	}
 
 	@Test
 	public void findConnectionsByProviderIdEmptyResult() {
-		assertTrue(getConnectionRepository().findConnections("facebook").isEmpty());
+		assertTrue(getUserScopedConnectionRepository().findConnections("facebook").isEmpty());
 	}
 
 	@Test
 	public void findConnectionsByApi() {
 		insertFacebookConnection1();
 		insertFacebookConnection2();
-		List<Connection<TestFacebookApi>> connections = getConnectionRepository().findConnections(TestFacebookApi.class);
+		List<Connection<TestFacebookApi>> connections = getUserScopedConnectionRepository().findConnections(TestFacebookApi.class);
 		assertEquals(2, connections.size());
 		assertFacebookConnection(connections.get(0));
 	}
 
 	@Test
 	public void findConnectionsByApiEmptyResult() {
-		assertTrue(getConnectionRepository().findConnections(TestFacebookApi.class).isEmpty());
+		assertTrue(getUserScopedConnectionRepository().findConnections(TestFacebookApi.class).isEmpty());
 	}
 
 	@Test
@@ -229,7 +229,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 		providerUsers.add("twitter", TWITTER_CONNECTION_1_PROVIDER_USER_ID);
 		providerUsers.add("facebook", FACEBOOK_CONNECTION_2_PROVIDER_USER_ID);
 		providerUsers.add("facebook", FACEBOOK_CONNECTION_1_PROVIDER_USER_ID);
-		MultiValueMap<String, Connection<?>> connectionsForUsers = getConnectionRepository().findConnectionsToUsers(providerUsers);
+		MultiValueMap<String, Connection<?>> connectionsForUsers = getUserScopedConnectionRepository().findConnectionsToUsers(providerUsers);
 		assertEquals(2, connectionsForUsers.size());
 		assertEquals(FACEBOOK_CONNECTION_2_PROVIDER_USER_ID, connectionsForUsers.getFirst("facebook").getKey().getProviderUserId());
 		assertFacebookConnection((Connection<TestFacebookApi>) connectionsForUsers.get("facebook").get(1));
@@ -240,91 +240,91 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	public void findConnectionsToUsersEmptyResult() {
 		MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
 		providerUsers.add("facebook", FACEBOOK_CONNECTION_1_PROVIDER_USER_ID);
-		assertTrue(getConnectionRepository().findConnectionsToUsers(providerUsers).isEmpty());
+		assertTrue(getUserScopedConnectionRepository().findConnectionsToUsers(providerUsers).isEmpty());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void findConnectionsToUsersEmptyInput() {
 		MultiValueMap<String, String> providerUsers = new LinkedMultiValueMap<String, String>();
-		getConnectionRepository().findConnectionsToUsers(providerUsers);
+		getUserScopedConnectionRepository().findConnectionsToUsers(providerUsers);
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void findConnectionByKey() {
 		insertFacebookConnection1();
-		assertFacebookConnection((Connection<TestFacebookApi>) getConnectionRepository().getConnection(new ConnectionKey("facebook", "9")));
+		assertFacebookConnection((Connection<TestFacebookApi>) getUserScopedConnectionRepository().getConnection(new ConnectionKey("facebook", "9")));
 	}
 
 	@Test(expected = NoSuchConnectionException.class)
 	public void findConnectionByKeyNoSuchConnection() {
-		getConnectionRepository().getConnection(new ConnectionKey("facebook", "bogus"));
+		getUserScopedConnectionRepository().getConnection(new ConnectionKey("facebook", "bogus"));
 	}
 
 	@Test
 	public void findConnectionByApiToUser() {
 		insertFacebookConnection1();
 		insertFacebookConnection2();	
-		assertFacebookConnection(getConnectionRepository().getConnection(TestFacebookApi.class, FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
-		assertEquals(FACEBOOK_CONNECTION_2_PROVIDER_USER_ID, getConnectionRepository().getConnection(TestFacebookApi.class, FACEBOOK_CONNECTION_2_PROVIDER_USER_ID).getKey().getProviderUserId());
+		assertFacebookConnection(getUserScopedConnectionRepository().getConnection(TestFacebookApi.class, FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
+		assertEquals(FACEBOOK_CONNECTION_2_PROVIDER_USER_ID, getUserScopedConnectionRepository().getConnection(TestFacebookApi.class, FACEBOOK_CONNECTION_2_PROVIDER_USER_ID).getKey().getProviderUserId());
 	}
 
 	@Test(expected = NoSuchConnectionException.class)
 	public void findConnectionByApiToUserNoSuchConnection() {
-		assertFacebookConnection(getConnectionRepository().getConnection(TestFacebookApi.class, FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
+		assertFacebookConnection(getUserScopedConnectionRepository().getConnection(TestFacebookApi.class, FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
 	}
 
 	@Test
 	public void findPrimaryConnection() {
 		insertFacebookConnection1();
-		assertFacebookConnection(getConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
+		assertFacebookConnection(getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
 	}
 
 	@Test
 	public void findPrimaryConnectionSelectFromMultipleByRank() {
 		insertFacebookConnection1();
 		insertFacebookConnection2();
-		assertFacebookConnection(getConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
+		assertFacebookConnection(getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class));
 	}
 
 	@Test(expected = NotConnectedException.class)
 	public void findPrimaryConnectionNotConnected() {
-		getConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
+		getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
 	}
 
 	@Test
 	public void removeConnections() {
 		insertFacebookConnection1();
 		insertFacebookConnection2();
-		assertEquals(2, getConnectionRepository().findConnections("facebook").size());
-		getConnectionRepository().removeConnections("facebook");
-		assertEquals(0, getConnectionRepository().findConnections("facebook").size());
+		assertEquals(2, getUserScopedConnectionRepository().findConnections("facebook").size());
+		getUserScopedConnectionRepository().removeConnections("facebook");
+		assertEquals(0, getUserScopedConnectionRepository().findConnections("facebook").size());
 	}
 
 	@Test
 	public void removeConnectionsToProviderNoOp() {
-		getConnectionRepository().removeConnections("twitter");
+		getUserScopedConnectionRepository().removeConnections("twitter");
 	}
 
 	@Test
 	public void removeConnection() {
 		insertFacebookConnection1();
 		insertFacebookConnection2();
-		assertEquals(2, getConnectionRepository().findConnections("facebook").size());
-		getConnectionRepository().removeConnection(new ConnectionKey("facebook", FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
-		assertEquals(1, getConnectionRepository().findConnections("facebook").size());		
+		assertEquals(2, getUserScopedConnectionRepository().findConnections("facebook").size());
+		getUserScopedConnectionRepository().removeConnection(new ConnectionKey("facebook", FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
+		assertEquals(1, getUserScopedConnectionRepository().findConnections("facebook").size());
 	}
 
 	@Test
 	public void removeConnectionNoOp() {
-		getConnectionRepository().removeConnection(new ConnectionKey("facebook", "1111111111"));
+		getUserScopedConnectionRepository().removeConnection(new ConnectionKey("facebook", "1111111111"));
 	}
 
 	@Test
 	public void addConnection() {
 		Connection<TestFacebookApi> connection = facebookConnectionFactory.createConnection(new AccessGrant("123456789", null, "987654321", 3600L));
-		getConnectionRepository().addConnection(connection);
-		Connection<TestFacebookApi> restoredConnection = getConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
+		getUserScopedConnectionRepository().addConnection(connection);
+		Connection<TestFacebookApi> restoredConnection = getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
 		assertEquals(connection, restoredConnection);	
 		assertNewConnection(restoredConnection);
 	}
@@ -332,30 +332,30 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 	@Test(expected = DuplicateConnectionException.class)
 	public void addConnectionDuplicate() {
 		Connection<TestFacebookApi> connection = facebookConnectionFactory.createConnection(new AccessGrant("123456789", null, "987654321", 3600L));
-		getConnectionRepository().addConnection(connection);
-		getConnectionRepository().addConnection(connection);
+		getUserScopedConnectionRepository().addConnection(connection);
+		getUserScopedConnectionRepository().addConnection(connection);
 	}
 
 	@Test
 	public void updateConnectionProfileFields() {
 		insertTwitterConnection();
-		Connection<TestTwitterApi> twitter = getConnectionRepository().getPrimaryConnection(TestTwitterApi.class);
+		Connection<TestTwitterApi> twitter = getUserScopedConnectionRepository().getPrimaryConnection(TestTwitterApi.class);
 		assertEquals("https://twitter.com/kdonald/picture", twitter.getImageUrl());
 		twitter.sync();
 		assertEquals("https://twitter.com/kdonald/a_new_picture", twitter.getImageUrl());
-		getConnectionRepository().updateConnection(twitter);
-		Connection<TestTwitterApi> twitter2 = getConnectionRepository().getPrimaryConnection(TestTwitterApi.class);
+		getUserScopedConnectionRepository().updateConnection(twitter);
+		Connection<TestTwitterApi> twitter2 = getUserScopedConnectionRepository().getPrimaryConnection(TestTwitterApi.class);
 		assertEquals("https://twitter.com/kdonald/a_new_picture", twitter2.getImageUrl());
 	}
 
 	@Test
 	public void updateConnectionAccessFields() {
 		insertFacebookConnection1();
-		Connection<TestFacebookApi> facebook = getConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
+		Connection<TestFacebookApi> facebook = getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
 		assertEquals("234567890", facebook.getApi().getAccessToken());
 		facebook.refresh();
-		getConnectionRepository().updateConnection(facebook);
-		Connection<TestFacebookApi> facebook2 = getConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
+		getUserScopedConnectionRepository().updateConnection(facebook);
+		Connection<TestFacebookApi> facebook2 = getUserScopedConnectionRepository().getPrimaryConnection(TestFacebookApi.class);
 		assertEquals("765432109", facebook2.getApi().getAccessToken());
 		ConnectionData data = facebook.createData();
 		assertEquals("654321098", data.getRefreshToken());
@@ -366,9 +366,9 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 		insertFacebookConnection1();
 		insertFacebookConnection2();    
 		// 9 is the providerUserId of the first Facebook connection
-		getConnectionRepository().removeConnection(new ConnectionKey("facebook", FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
-		assertEquals(1, getConnectionRepository().findConnections(TestFacebookApi.class).size());
-		assertNotNull(getConnectionRepository().findPrimaryConnection(TestFacebookApi.class));
+		getUserScopedConnectionRepository().removeConnection(new ConnectionKey("facebook", FACEBOOK_CONNECTION_1_PROVIDER_USER_ID));
+		assertEquals(1, getUserScopedConnectionRepository().findConnections(TestFacebookApi.class).size());
+		assertNotNull(getUserScopedConnectionRepository().findPrimaryConnection(TestFacebookApi.class));
 	}
 
 	protected String getTablePrefix() {
@@ -588,7 +588,7 @@ public abstract class AbstractUsersConnectionRepositoryTest {
 			
 		}
 
-	public AbstractUsersConnectionRepositoryTest() {
+	public AbstractUsersUserScopedConnectionRepositoryTest() {
 		super();
 	}
 

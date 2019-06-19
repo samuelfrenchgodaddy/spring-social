@@ -32,12 +32,8 @@ import org.springframework.social.config.DummyConnection;
 import org.springframework.social.config.Fake;
 import org.springframework.social.config.FakeConnectionFactory;
 import org.springframework.social.config.FakeTemplate;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionData;
-import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.*;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -80,7 +76,7 @@ public class SocialConfigNamespaceTest {
 	@Test
 	public void jdbcConnectionRepository() {
 		assertNotNull(context.getBean("usersConnectionRepository", UsersConnectionRepository.class));
-		assertNotNull(context.getBean("connectionRepository", ConnectionRepository.class));
+		assertNotNull(context.getBean("connectionRepository", UserScopedConnectionRepository.class));
 	}
 
 	@Test
@@ -94,16 +90,16 @@ public class SocialConfigNamespaceTest {
 	@Test
 	public void jdbcConnectionRepository_addAndRemoveAConnection() {
 		ConnectionFactoryLocator cfl = context.getBean(ConnectionFactoryLocator.class);
-		ConnectionRepository connectionRepository = context.getBean(ConnectionRepository.class);
-		testConnectionRepository(cfl, connectionRepository);
+		UserScopedConnectionRepository userScopedConnectionRepository = context.getBean(UserScopedConnectionRepository.class);
+		testConnectionRepository(cfl, userScopedConnectionRepository);
 	}
 	
-	private void testConnectionRepository(ConnectionFactoryLocator cfl, ConnectionRepository connectionRepository) {
-		assertNull(connectionRepository.findPrimaryConnection(Fake.class));
+	private void testConnectionRepository(ConnectionFactoryLocator cfl, UserScopedConnectionRepository userScopedConnectionRepository) {
+		assertNull(userScopedConnectionRepository.findPrimaryConnection(Fake.class));
 		ConnectionFactory<Fake> fakeCF = cfl.getConnectionFactory(Fake.class);
 		Connection<Fake> connection = fakeCF.createConnection(new ConnectionData("fake", "bob", "Bob McBob", "https://www.twitter.com/mcbob", null, "someToken", "someSecret", null, null));
-		connectionRepository.addConnection(connection);
-		assertNotNull(connectionRepository.findPrimaryConnection(Fake.class));
+		userScopedConnectionRepository.addConnection(connection);
+		assertNotNull(userScopedConnectionRepository.findPrimaryConnection(Fake.class));
 		assertTrue(context.getBean(Fake.class).isAuthorized());
 		assertNotNull(fake);
 		assertTrue(fake.isAuthorized());

@@ -26,7 +26,7 @@ import org.springframework.social.config.Fake;
 import org.springframework.social.config.FakeConnectionFactory;
 import org.springframework.social.config.SimpleUserIdSource;
 import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 
 @Configuration
 @EnableSocial
@@ -44,7 +44,7 @@ public class MyAwesomeSocialConfig extends SocialConfigurerAdapter {
 
 	@Bean
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)
-	public Fake fake(ConnectionRepository repository) {
+	public Fake fake(UserScopedConnectionRepository repository) {
 		Connection<Fake> connection = repository.findPrimaryConnection(Fake.class);
 		return connection != null ? connection.getApi() : null;
 	}

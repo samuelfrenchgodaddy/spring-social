@@ -16,7 +16,7 @@
 package org.springframework.social.connect.jdbc;
 
 
-public class JdbcUsersConnectionRepositoryPrefixedTableTest extends JdbcUsersConnectionRepositoryTest {
+public class JdbcUsersUserScopedConnectionRepositoryPrefixedTableTest extends JdbcUsersUserScopedConnectionRepositoryTest {
 	
 	@Override
 	protected String getSchemaSql() {

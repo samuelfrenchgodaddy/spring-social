@@ -37,7 +37,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.social.UserIdSource;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionData;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.web.HttpSessionSessionStrategy;
 import org.springframework.social.connect.web.ProviderSignInAttempt;
@@ -244,7 +244,7 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
 			return null;
 		}
 
-		ConnectionRepository repo = usersConnectionRepository.createConnectionRepository(userId);
+		UserScopedConnectionRepository repo = usersConnectionRepository.createConnectionRepository(userId);
 
 		if (!authService.getConnectionCardinality().isMultiProviderUserId()) {
 			List<Connection<?>> connections = repo.findConnections(data.getProviderId());
@@ -385,7 +385,7 @@ public class SocialAuthenticationFilter extends AbstractAuthenticationProcessing
 		if (updateConnections) {
 			String userId = ((SocialUserDetails)success.getPrincipal()).getUserId();
 			Connection<?> connection = token.getConnection();
-			ConnectionRepository repo = getUsersConnectionRepository().createConnectionRepository(userId);
+			UserScopedConnectionRepository repo = getUsersConnectionRepository().createConnectionRepository(userId);
 			repo.updateConnection(connection);
 		}
 	}

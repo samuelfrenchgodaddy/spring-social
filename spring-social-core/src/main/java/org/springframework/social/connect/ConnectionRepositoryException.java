@@ -18,7 +18,7 @@ package org.springframework.social.connect;
 import org.springframework.social.SocialException;
 
 /**
- * Base exception class for {@link ConnectionRepository} failures.
+ * Base exception class for {@link UserScopedConnectionRepository} failures.
  * @author Keith Donald
  */
 @SuppressWarnings("serial")

@@ -16,9 +16,9 @@
 package org.springframework.social.connect;
 
 /**
- * Thrown by a {@link ConnectionRepository} when attempting to fetch a "primary" connection and the user is not connected to the provider in question.
+ * Thrown by a {@link UserScopedConnectionRepository} when attempting to fetch a "primary" connection and the user is not connected to the provider in question.
  * @author Keith Donald
- * @see ConnectionRepository#getPrimaryConnection(Class)
+ * @see UserScopedConnectionRepository#getPrimaryConnection(Class)
  */
 @SuppressWarnings("serial")
 public class NotConnectedException extends ConnectionRepositoryException {

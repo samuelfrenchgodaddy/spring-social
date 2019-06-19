@@ -32,20 +32,13 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionData;
-import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.DuplicateConnectionException;
-import org.springframework.social.connect.NoSuchConnectionException;
-import org.springframework.social.connect.NotConnectedException;
+import org.springframework.social.connect.*;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-public class JdbcConnectionRepository implements ConnectionRepository {
+public class JdbcUserScopedConnectionRepository implements UserScopedConnectionRepository {
 
 	private final String userId;
 	
@@ -57,7 +50,7 @@ public class JdbcConnectionRepository implements ConnectionRepository {
 
 	private final String tablePrefix;
 
-	public JdbcConnectionRepository(String userId, JdbcTemplate jdbcTemplate, ConnectionFactoryLocator connectionFactoryLocator, TextEncryptor textEncryptor, String tablePrefix) {
+	public JdbcUserScopedConnectionRepository(String userId, JdbcTemplate jdbcTemplate, ConnectionFactoryLocator connectionFactoryLocator, TextEncryptor textEncryptor, String tablePrefix) {
 		this.userId = userId;
 		this.jdbcTemplate = jdbcTemplate;
 		this.connectionFactoryLocator = connectionFactoryLocator;
@@ -235,5 +228,7 @@ public class JdbcConnectionRepository implements ConnectionRepository {
 	private String encrypt(String text) {
 		return text != null ? textEncryptor.encrypt(text) : text;
 	}
+
+	/* Code to Be Extracted to QueryProvider class goes here */
 
 }

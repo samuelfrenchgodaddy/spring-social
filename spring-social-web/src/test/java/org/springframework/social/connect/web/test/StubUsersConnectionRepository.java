@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 
@@ -45,8 +45,8 @@ public class StubUsersConnectionRepository implements UsersConnectionRepository 
 		return null;
 	}
 
-	public ConnectionRepository createConnectionRepository(String userId) {
-		return new StubConnectionRepository();
+	public UserScopedConnectionRepository createConnectionRepository(String userId) {
+		return new StubUserScopedConnectionRepository();
 	}
 
 	@Override

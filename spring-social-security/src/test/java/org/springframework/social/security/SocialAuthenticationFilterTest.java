@@ -40,11 +40,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.social.UserIdSource;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionData;
-import org.springframework.social.connect.ConnectionFactory;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.*;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.security.provider.SocialAuthenticationService;
 import org.springframework.social.security.provider.SocialAuthenticationService.ConnectionCardinality;
 import org.springframework.social.security.test.DummyConnection;
@@ -138,7 +135,7 @@ public class SocialAuthenticationFilterTest {
 		SocialAuthenticationFilter filter = new SocialAuthenticationFilter(null, null, usersConnectionRepository, null);
 
 		SocialAuthenticationService<Object> authService = mock(SocialAuthenticationService.class);
-		ConnectionRepository connectionRepository = mock(ConnectionRepository.class);
+		UserScopedConnectionRepository userScopedConnectionRepository = mock(UserScopedConnectionRepository.class);
 		ConnectionFactory<Object> connectionFactory = mock(MockConnectionFactory.class);
 
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -148,7 +145,7 @@ public class SocialAuthenticationFilterTest {
 		DummyConnection<Object> connection = DummyConnection.dummy(data.getProviderId(), userId);
 
 		when(usersConnectionRepository.findUserIdsConnectedTo(data.getProviderId(), set(data.getProviderUserId()))).thenReturn(empty(String.class));
-		when(usersConnectionRepository.createConnectionRepository(userId)).thenReturn(connectionRepository);
+		when(usersConnectionRepository.createConnectionRepository(userId)).thenReturn(userScopedConnectionRepository);
 
 		when(authService.getConnectionCardinality()).thenReturn(ConnectionCardinality.ONE_TO_ONE);
 		when(authService.getConnectionFactory()).thenReturn(connectionFactory);
@@ -160,7 +157,7 @@ public class SocialAuthenticationFilterTest {
 		assertNotNull(addedConnection);
 		assertSame(connection, addedConnection);
 
-		verify(connectionRepository).addConnection(connection);
+		verify(userScopedConnectionRepository).addConnection(connection);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -205,7 +202,7 @@ public class SocialAuthenticationFilterTest {
 
 		assertEquals("/added", env.res.getRedirectedUrl());
 
-		verify(env.connectionRepository).addConnection(env.auth.getConnection());
+		verify(env.userScopedConnectionRepository).addConnection(env.auth.getConnection());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -248,7 +245,7 @@ public class SocialAuthenticationFilterTest {
 
 		assertEquals("/add-failed", env.res.getRedirectedUrl());
 
-		verify(env.connectionRepository, times(0)).addConnection(env.auth.getConnection());
+		verify(env.userScopedConnectionRepository, times(0)).addConnection(env.auth.getConnection());
 	}
 
 	private static <T> Set<T> empty(Class<T> cls) {
@@ -271,7 +268,7 @@ public class SocialAuthenticationFilterTest {
 		private final AuthenticationManager authManager;
 		private final UserIdSource userIdSource;
 		private final UsersConnectionRepository usersConnectionRepository;
-		private final ConnectionRepository connectionRepository;
+		private final UserScopedConnectionRepository userScopedConnectionRepository;
 
 		private FilterTestEnv(String method, String requestURI, String signupUrl) {
 			context = new MockServletContext();
@@ -283,14 +280,14 @@ public class SocialAuthenticationFilterTest {
 			authManager = mock(AuthenticationManager.class);
 			userIdSource = mock(UserIdSource.class);
 			usersConnectionRepository = mock(UsersConnectionRepository.class);
-			connectionRepository = mock(ConnectionRepository.class);
+			userScopedConnectionRepository = mock(UserScopedConnectionRepository.class);
 
 			filter = new SocialAuthenticationFilter(authManager, userIdSource, usersConnectionRepository, new SocialAuthenticationServiceRegistry());
 			filter.setServletContext(context);
 			filter.setRememberMeServices(new NullRememberMeServices());
 			filter.setSignupUrl(signupUrl);
 
-			when(filter.getUsersConnectionRepository().createConnectionRepository(Mockito.anyString())).thenReturn(connectionRepository);
+			when(filter.getUsersConnectionRepository().createConnectionRepository(Mockito.anyString())).thenReturn(userScopedConnectionRepository);
 
 			auth = new SocialAuthenticationToken(DummyConnection.dummy("provider", "user"), null);
 

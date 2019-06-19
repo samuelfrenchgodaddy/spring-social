@@ -25,7 +25,7 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.core.env.Environment;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.util.Assert;
 
@@ -97,7 +97,7 @@ public class SocialConfiguration {
 
 	@Bean
 	@Scope(value="request", proxyMode=ScopedProxyMode.INTERFACES)
-	public ConnectionRepository connectionRepository(UsersConnectionRepository usersConnectionRepository) {
+	public UserScopedConnectionRepository connectionRepository(UsersConnectionRepository usersConnectionRepository) {
 		return usersConnectionRepository.createConnectionRepository(userIdSource().getUserId());
 	}
 

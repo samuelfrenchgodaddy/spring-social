@@ -29,7 +29,7 @@ public abstract class AbstractConnectionRepositoryConfigSupport {
 
 	protected BeanDefinition registerConnectionRepository(BeanDefinitionRegistry registry, String usersConnectionRepositoryId, String connectionRepositoryId, String userIdSourceRef) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Registering ConnectionRepository bean");
+			logger.debug("Registering UserScopedConnectionRepository bean");
 		}		
 		// TODO: Hackish use of SpEL to reference userIdSource
 		BeanDefinition connectionRepositoryBD = BeanDefinitionBuilder.genericBeanDefinition().addConstructorArgValue("#{" + userIdSourceRef + ".userId}").getBeanDefinition();

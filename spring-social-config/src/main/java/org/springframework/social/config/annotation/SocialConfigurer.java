@@ -19,7 +19,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.connect.ConnectionFactory;
 import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 
 /**
@@ -45,7 +45,7 @@ public interface SocialConfigurer {
 	
 	/**
 	 * Callback method to create an instance of {@link UsersConnectionRepository}. 
-	 * Will be used to create a request-scoped instance of {@link ConnectionRepository} for the current user.
+	 * Will be used to create a request-scoped instance of {@link UserScopedConnectionRepository} for the current user.
 	 * @param connectionFactoryLocator A {@link ConnectionFactoryLocator} to be used by the {@link UsersConnectionRepository}.
 	 * @return An instance of {@link UsersConnectionRepository}.
 	 */

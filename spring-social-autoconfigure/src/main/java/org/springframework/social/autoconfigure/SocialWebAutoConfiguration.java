@@ -43,7 +43,7 @@ import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.EnableSocial;
 import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.web.ConnectController;
 import org.springframework.social.connect.web.ConnectInterceptor;
@@ -95,7 +95,7 @@ public class SocialWebAutoConfiguration {
 		@ConditionalOnMissingBean(ConnectController.class)
 		public ConnectController connectController(
 				ConnectionFactoryLocator factoryLocator,
-				ConnectionRepository repository) {
+				UserScopedConnectionRepository repository) {
 			ConnectController controller = new ConnectController(factoryLocator,
 					repository);
 			if (!CollectionUtils.isEmpty(this.connectInterceptors)) {
@@ -178,7 +178,7 @@ public class SocialWebAutoConfiguration {
 			SecurityContext context = SecurityContextHolder.getContext();
 			Authentication authentication = context.getAuthentication();
 			Assert.state(authentication != null,
-					"Unable to get a ConnectionRepository: no user signed in");
+					"Unable to get a UserScopedConnectionRepository: no user signed in");
 			return authentication.getName();
 		}
 

@@ -20,11 +20,11 @@ import java.util.List;
 
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.connect.ConnectionRepository;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-public class StubConnectionRepository implements ConnectionRepository {
+public class StubUserScopedConnectionRepository implements UserScopedConnectionRepository {
 	
 	private MultiValueMap<String, Connection<?>> providerIdConnectionMap = new LinkedMultiValueMap<String, Connection<?>>();	
 

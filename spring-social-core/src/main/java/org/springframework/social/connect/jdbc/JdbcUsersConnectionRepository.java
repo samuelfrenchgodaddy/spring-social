@@ -30,12 +30,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
-import org.springframework.social.connect.Connection;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.ConnectionKey;
-import org.springframework.social.connect.ConnectionRepository;
-import org.springframework.social.connect.ConnectionSignUp;
-import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.*;
+import org.springframework.social.connect.UserScopedConnectionRepository;
 
 /**
  * {@link UsersConnectionRepository} that uses the JDBC API to persist connection data to a relational database.
@@ -45,13 +41,13 @@ import org.springframework.social.connect.UsersConnectionRepository;
 public class JdbcUsersConnectionRepository implements UsersConnectionRepository {
 
 	private final JdbcTemplate jdbcTemplate;
-	
+
 	private final ConnectionFactoryLocator connectionFactoryLocator;
 
 	private final TextEncryptor textEncryptor;
 
 	private ConnectionSignUp connectionSignUp;
-	
+
 	private String tablePrefix = "";
 
 	public JdbcUsersConnectionRepository(DataSource dataSource, ConnectionFactoryLocator connectionFactoryLocator, TextEncryptor textEncryptor) {
@@ -67,16 +63,16 @@ public class JdbcUsersConnectionRepository implements UsersConnectionRepository 
 
 	/**
 	 * Sets a table name prefix. This will be prefixed to all the table names before queries are executed. Defaults to "".
-	 * This is can be used to qualify the table name with a schema or to distinguish Spring Social tables from other application tables. 
+	 * This is can be used to qualify the table name with a schema or to distinguish Spring Social tables from other applicat`ion tables.
 	 * @param tablePrefix the tablePrefix to set
 	 */
 	public void setTablePrefix(String tablePrefix) {
 		this.tablePrefix = tablePrefix;
 	}
-	
+
 	public List<String> findUserIdsWithConnection(Connection<?> connection) {
 		ConnectionKey key = connection.getKey();
-		List<String> localUserIds = jdbcTemplate.queryForList("select userId from " + tablePrefix + "UserConnection where providerId = ? and providerUserId = ?", String.class, key.getProviderId(), key.getProviderUserId());		
+		List<String> localUserIds = jdbcTemplate.queryForList("select userId from " + tablePrefix + "UserConnection where providerId = ? and providerUserId = ?", String.class, key.getProviderId(), key.getProviderUserId());
 		if (localUserIds.size() == 0 && connectionSignUp != null) {
 			String newUserId = connectionSignUp.execute(connection);
 			if (newUserId != null)
@@ -94,21 +90,21 @@ public class JdbcUsersConnectionRepository implements UsersConnectionRepository 
 		parameters.addValue("providerUserIds", providerUserIds);
 		final Set<String> localUserIds = new HashSet<String>();
 		return new NamedParameterJdbcTemplate(jdbcTemplate).query("select userId from " + tablePrefix + "UserConnection where providerId = :providerId and providerUserId in (:providerUserIds)", parameters,
-			new ResultSetExtractor<Set<String>>() {
-				public Set<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
-					while (rs.next()) {
-						localUserIds.add(rs.getString("userId"));
+				new ResultSetExtractor<Set<String>>() {
+					public Set<String> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						while (rs.next()) {
+							localUserIds.add(rs.getString("userId"));
+						}
+						return localUserIds;
 					}
-					return localUserIds;
-				}
-			});
+				});
 	}
 
-	public ConnectionRepository createConnectionRepository(String userId) {
+	public UserScopedConnectionRepository createConnectionRepository(String userId) {
 		if (userId == null) {
 			throw new IllegalArgumentException("userId cannot be null");
 		}
-		return new JdbcConnectionRepository(userId, jdbcTemplate, connectionFactoryLocator, textEncryptor, tablePrefix);
+		return new JdbcUserScopedConnectionRepository(userId, jdbcTemplate, connectionFactoryLocator, textEncryptor, tablePrefix);
 	}
 
 }

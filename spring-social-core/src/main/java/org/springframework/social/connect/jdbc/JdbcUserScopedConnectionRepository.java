@@ -67,15 +67,12 @@ public class JdbcUserScopedConnectionRepository implements UserScopedConnectionR
 		this.textEncryptor = textEncryptor;
 		this.tablePrefix = tablePrefix;
 	}
-	
+
+	//change this to a map of list - who uses multi-value-map? it's confusing
 	public MultiValueMap<String, Connection<?>> findAllConnections() {
-		List<Connection<?>> resultList = jdbcTemplate.query(selectFromUserConnection() + " where userId = ? order by providerId, `rank`", connectionMapper, userId);
-		MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<String, Connection<?>>();
-		Set<String> registeredProviderIds = connectionFactoryLocator.registeredProviderIds();
-		for (String registeredProviderId : registeredProviderIds) {
-			connections.put(registeredProviderId, Collections.<Connection<?>>emptyList());
-		}
-		for (Connection<?> connection : resultList) {
+		List<Connection<?>> serviceProviderAccountConnectionsForLocalUser = getConnectionsForUserOrderByProviderIdAndRank();
+		MultiValueMap<String, Connection<?>> connections = initializeEmptyKnownProviderIdToConnectionMap();
+		for (Connection<?> connection : serviceProviderAccountConnectionsForLocalUser) {
 			String providerId = connection.getKey().getProviderId();
 			if (connections.get(providerId).size() == 0) {
 				connections.put(providerId, new LinkedList<Connection<?>>());
@@ -83,6 +80,20 @@ public class JdbcUserScopedConnectionRepository implements UserScopedConnectionR
 			connections.add(providerId, connection);
 		}
 		return connections;
+	}
+
+	//why are we doing this? if we really need to - let's extract the duplicated code
+	private MultiValueMap<String, Connection<?>> initializeEmptyKnownProviderIdToConnectionMap() {
+		MultiValueMap<String, Connection<?>> connections = new LinkedMultiValueMap<String, Connection<?>>();
+		Set<String> registeredProviderIds = connectionFactoryLocator.registeredProviderIds();
+		for (String registeredProviderId : registeredProviderIds) {
+			connections.put(registeredProviderId, Collections.<Connection<?>>emptyList());
+		}
+		return connections;
+	}
+
+	private List<Connection<?>> getConnectionsForUserOrderByProviderIdAndRank() {
+		return jdbcTemplate.query(selectFromUserConnection() + " where userId = ? order by providerId, `rank`", connectionMapper, userId);
 	}
 
 	public List<Connection<?>> findConnections(String providerId) {
@@ -192,7 +203,7 @@ public class JdbcUserScopedConnectionRepository implements UserScopedConnectionR
 	}
 
 	// internal helpers
-	
+
 	private String selectFromUserConnection() {
 		return "select userId, providerId, providerUserId, displayName, profileUrl, imageUrl, accessToken, secret, refreshToken, expireTime from " + tablePrefix + "UserConnection";
 	}

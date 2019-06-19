@@ -38,6 +38,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+
+/*
+
+Notes:
+
+extract query creation into a query provider object
+start adding testing around extracted classes
+
+try to rename more stuff- a connection is a "A link to a service provider user." - basically this class should represent all of the remote accounts for a given local user
+ */
 public class JdbcUserScopedConnectionRepository implements UserScopedConnectionRepository {
 
 	private final String userId;
